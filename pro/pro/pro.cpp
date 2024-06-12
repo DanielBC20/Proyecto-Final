@@ -1,28 +1,27 @@
-#include <mysql.h>
+#include <mysql.h> // para conectar a la base de datos y manipular 
 #include <iostream>
 #include <iomanip> // para usar setw
 #include <string>
-
 using namespace std;
-
-// Códigos de escape ANSI para colores
+// Códigos ANSI para colores
 const string RESET = "\033[0m";
 const string RED = "\033[31m";
 const string GREEN = "\033[32m";
 const string YELLOW = "\033[33m";
 const string BLUE = "\033[34m";
-
 class BaseDeDatos {
 public:
     BaseDeDatos(const string& host, const string& usuario, const string& clave, const string& nombreBD, unsigned int puerto) {
         conn = mysql_init(0);
         if (conn) {
             conn = mysql_real_connect(conn, host.c_str(), usuario.c_str(), clave.c_str(), nombreBD.c_str(), puerto, NULL, 0);
+            // intenta conectarse a la base de datos utilizando mysql_real_connect.
             if (conn) {
                 cout << GREEN << "Conectado a la Base de Datos" << RESET << endl;
             }
             else {
-                cout << RED << "Conexion fallida: " << mysql_error(conn) << RESET << endl;
+                cout << RED << "No fue posible conectarse a la Base de Datos: " << mysql_error(conn) << RESET << endl;
+                // en caso en no conectar utiliza mysql_error(conn).
             }
         }
         else {
@@ -32,16 +31,15 @@ public:
 
     ~BaseDeDatos() {
         if (conn) {
-            mysql_close(conn);
+            mysql_close(conn); //Cierra de forma segura la conexión a la base de datos utilizando mysql_close(conn)
         }
     }
 
-    MYSQL* getConexion() const {
+    MYSQL* getConexion() const {  // Suponiendo una conexión exitosa, puede utilizar el método getConexion()
         return conn;
     }
-
 private:
-    MYSQL* conn;
+    MYSQL* conn; //Almacena el identificador de conexión obtenido de las funciones de la biblioteca MySQL.
 };
 
 class Pasajero {
@@ -99,7 +97,6 @@ public:
             cout << GREEN << "Pasajero borrado!" << RESET << endl;
         }
     }
-
     static void buscar(MYSQL* conn, const string& nombre) {
         string query = "SELECT * FROM passengers WHERE nombre LIKE '%" + nombre + "%'";
         if (mysql_query(conn, query.c_str())) {
@@ -217,7 +214,7 @@ private:
     string fecha_hora_llegada;
 };
 
-void mostrarSubMenuPasajeros(MYSQL* conn) {
+void mostrarSubMenuPasajeros(MYSQL* conn) { // creacion del sub menu pasajeros 
     int opcion = 0;
     while (opcion != 6) {
         cout << BLUE << "\n--- Menu Pasajeros ---" << RESET << endl;
@@ -290,7 +287,7 @@ void mostrarSubMenuPasajeros(MYSQL* conn) {
     }
 }
 
-void mostrarSubMenuVuelos(MYSQL* conn) {
+void mostrarSubMenuVuelos(MYSQL* conn) { //Crear el submenu vuelos
     int opcion = 0;
     while (opcion != 6) {
         cout << BLUE << "\n--- Menu Vuelos ---" << RESET << endl;
@@ -374,9 +371,8 @@ void mostrarMenuPrincipal() {
     cout << BLUE << "3. Salir" << RESET << endl;
     cout << GREEN << "Seleccione una opcion:" << RESET << endl;
 }
-
 int main() {
-    BaseDeDatos bd("localhost", "root", "123456", "pase_de_abordaje", 3306);
+    BaseDeDatos bd("localhost", "root", "123456", "pase_de_abordaje", 3306); // para tener acceso a la base de datos, imgresar contraseña
     MYSQL* conn = bd.getConexion();
 
     if (conn) {
